@@ -1,0 +1,106 @@
+/* Estilos base */
+body {
+    margin: 0;
+    font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #36393f;
+    color: #dcddde;
+}
+
+/* Login Page */
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    background: #2f3136;
+    padding: 32px;
+    width: 480px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px 0 rgba(0,0,0,.2);
+}
+
+/* Chat Page */
+.chat-page {
+    display: grid;
+    height: 100vh;
+}
+
+/* Componentes comuns */
+.input-group {
+    margin-bottom: 20px;
+}
+
+input {
+    background: rgba(0,0,0,.1);
+    border: 1px solid rgba(0,0,0,.3);
+    color: #dcddde;
+    padding: 10px;
+    border-radius: 3px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+button {
+    background: #5865f2;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Mensagens */
+.message {
+    margin-bottom: 16px;
+}
+
+.message-user {
+    font-weight: 600;
+    color: #fff;
+}
+
+.message-time {
+    color: #72767d;
+    font-size: 0.75rem;
+    margin-left: 8px;
+}
+
+/* Estilo para mensagens próprias */
+.own-message {
+    background: rgba(114, 137, 218, 0.1);
+    border-radius: 5px;
+}
+
+/* Destaque para seu nome na lista */
+.user.you {
+    color: #7289da;
+    font-weight: bold;
+}
+
+/* Efeito hover para usuários */
+.user:hover {
+    background: #3a3d44;
+    cursor: default;
+}
+
+/* Mensagens do usuário atual (alinhadas à direita) */
+.message.current-user {
+    flex-direction: row-reverse;
+    margin-left: auto;
+    max-width: 80%;
+  }
+  
+  .message.current-user .message-content {
+    align-items: flex-end;
+    text-align: right;
+  }
+  
+  /* Mensagens de outros (alinhadas à esquerda) */
+  .message:not(.current-user) {
+    margin-right: auto;
+    max-width: 80%;
+  }

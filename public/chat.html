@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Discord</title>
+    <style>
+        /* RESET E FONTES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #36393f;
+            color: #dcddde;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 72px 240px 1fr 240px;
+            overflow: hidden;
+        }
+
+        /* BARRA DE SERVIDORES */
+        .server-list {
+            background: #202225;
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .server-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #36393f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .server-icon:hover {
+            border-radius: 16px;
+        }
+
+        /* LISTA DE CANAIS */
+        .channel-list {
+            background: #2f3136;
+            padding: 15px 10px;
+            overflow-y: auto;
+        }
+
+        .channel-category {
+            color: #8e9297;
+            font-size: 12px;
+            margin: 20px 0 5px;
+            text-transform: uppercase;
+        }
+
+        .channel {
+            color: #8e9297;
+            padding: 6px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .channel.active,
+        .channel:hover {
+            color: #dcddde;
+            background: rgba(79, 84, 92, 0.32);
+        }
+
+        /* ÁREA DO CHAT */
+        .chat-container {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            background: #36393f;
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #292b2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-header h2 {
+            color: white;
+            font-size: 16px;
+        }
+
+        #messages {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #202225;
+            margin-top: 5px;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-user {
+            font-weight: 600;
+            color: white;
+            font-size: 16px;
+        }
+
+        .message-time {
+            color: #72767d;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .message-text {
+            margin-top: 4px;
+            color: #dcddde;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        /* INPUT DE MENSAGEM */
+        .message-input {
+            padding: 15px 20px;
+            background: #40444b;
+        }
+
+        .message-input input {
+            width: 100%;
+            padding: 10px;
+            background: #40444b;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        /* LISTA DE MEMBROS */
+        .user-list {
+            background: #2f3136;
+            padding: 15px;
+            overflow-y: auto;
+            border-left: 1px solid #292b2f;
+        }
+
+        .user-list h3 {
+            color: #8e9297;
+            font-size: 12px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #202225;
+        }
+
+        .user-name {
+            color: #dcddde;
+            font-size: 14px;
+        }
+
+        .user-you {
+            color: #8e9297;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Barra de servidores -->
+    <div class="server-list">
+        <div class="server-icon">
+            <img src="assets/images-Photoroom (1).png" width="24" alt="Server">
+        </div>
+    </div>
+
+    <!-- Lista de canais -->
+    <div class="channel-list">
+        <div class="channel-category">CANAIS DE TEXTO</div>
+        <div class="channel active"># geral</div>
+        <div class="channel"># jogos</div>
+    </div>
+
+    <!-- Área principal do chat -->
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2># geral</h2>
+        </div>
+
+        <div id="messages"></div>
+
+        <div class="message-input">
+            <input type="text" id="messageInput" placeholder="Enviar mensagem para #geral">
+        </div>
+    </div>
+
+    <!-- Lista de membros -->
+    <div class="user-list">
+        <h3>ONLINE — 1</h3>
+        <div class="user">
+            <div class="user-avatar"></div>
+            <div>
+                <div class="user-name">Você</div>
+                <div class="user-you">Você</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const messageInput = document.getElementById('messageInput');
+        const messagesContainer = document.getElementById('messages');
+        let username = '';
+        let lastMessageId = 0; // Controle de mensagens
+
+        // Pega o username da sessão
+        fetch('/get-username')
+            .then(res => res.json())
+            .then(data => {
+                username = data.username;
+                document.getElementById('user-name-display').textContent = username;
+            });
+
+        // Envio de mensagem (modificado)
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && messageInput.value.trim()) {
+                const msgId = Date.now(); // ID único
+                lastMessageId = msgId;
+
+                const messageData = {
+                    id: msgId,
+                    text: messageInput.value,
+                    username: username,
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+
+                // Exibe LOCALMENTE (apenas uma vez)
+                displayMessage(messageData, true);
+
+                // Envia para o servidor
+                socket.emit('chat message', messageData);
+
+                messageInput.value = '';
+            }
+        });
+
+        // Recebimento de mensagens (modificado)
+        socket.on('chat message', (data) => {
+            // Ignora a própria mensagem (já foi exibida localmente)
+            if (data.id !== lastMessageId) {
+                displayMessage(data, false);
+            }
+        });
+
+        function displayMessage(data, isCurrentUser) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${isCurrentUser ? 'current-user' : ''}`;
+            messageElement.innerHTML = `
+                <div class="message-avatar"></div>
+                <div class="message-content">
+                    <div>
+                        <span class="message-user">${data.username}</span>
+                        <span class="message-time">${data.time}</span>
+                    </div>
+                    <div class="message-text">${data.text}</div>
+                </div>
+            `;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>
